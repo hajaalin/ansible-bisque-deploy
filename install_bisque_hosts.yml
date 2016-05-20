@@ -1,0 +1,13 @@
+- hosts: bisque_hosts
+  sudo: yes
+  vars_files:
+  - vars/main.yml
+
+  roles:
+#  - { role: ssl-setup, when: install_ssl_setup_role, tags: ssl }
+#  - { role: geerlingguy.apache, tags: ssl }
+#  - { role: geerlingguy.mysql, when: install_mysql }
+#  - geerlingguy.php
+  - { role: geerlingguy.repo-epel, when: ansible_os_family == "RedHat" }
+  - { role: bisque, tags: bisque }
+#  - { role: shibboleth-hy, when: use_shibboleth, tags: shib }

@@ -1,0 +1,56 @@
+---
+
+# Basic settings
+postgresql_version: 9.3
+postgresql_encoding: 'UTF-8'
+postgresql_locale: 'fi_FI.UTF-8'
+
+postgresql_admin_user: "postgres"
+postgresql_default_auth_method: "trust"
+
+postgresql_cluster_name: "main"
+postgresql_cluster_reset: false
+
+# List of databases to be created (optional)
+# Note: for more flexibility with extensions use the postgresql_database_extensions setting.
+postgresql_databases:
+  - name: "{{ bisque_db_name }}"
+    owner: "{{ bisque_db_user }}"         # optional; specify the owner of the database
+    hstore: no         # flag to install the hstore extension on this database (yes/no)
+    uuid_ossp: no      # flag to install the uuid-ossp extension on this database (yes/no)
+    citext: no         # flag to install the citext extension on this database (yes/no)
+
+# List of database extensions to be created (optional)
+# postgresql_database_extensions:
+#   - db: bisque
+#     extensions:
+#       - hstore
+#       - citext
+
+# List of users to be created (optional)
+postgresql_users:
+  - name: "{{ bisque_db_user }}"
+    pass: "{{ bisque_db_password }}"
+    encrypted: no       # denotes if the password is already encrypted.
+
+# List of user privileges to be applied (optional)
+postgresql_user_privileges:
+  - name: "{{ bisque_db_user }}"                   # user name
+    db: "{{ bisque_db_name }}"                  # database
+    priv: "ALL"                 # privilege string format: example: INSERT,UPDATE/table:SELECT/anothertable:ALL
+    role_attr_flags: "CREATEDB" # role attribute flags
+
+
+bisque_site_servers: |
+  backend = uwsgi
+  servers = h1
+  h1.url = http://localhost:8080
+  h1.services_disabled = engine_service
+  # Extra params for uwsgi servers
+  h1.uwsgi.socket = unix:///tmp/bisque.sock
+  h1.uwsgi.threads = 8
+  h1.uwsgi.master = true
+  h1.uwsgi.processes = 4
+  h1.bisque.static_files = false
+  # Example h1 with only image service, feature and helpers
+  h1.services_enabled = blob_service, data_service, image_service, features
